@@ -1,43 +1,33 @@
 package main
 
 import (
-    "golang.org/x/oauth2"
-    "golang.org/x/oauth2/facebook"
-    "github.com/gorilla/mux"
+    "log"
     "net/http"
-    "fmt"
+    "github.com/spf13/viper"
+    "github.com/gorilla/mux"
+
+    "backend/app/handlers"
 )
 
-var facebookOauthConfig = &oauth2.Config{
-    RedirectURL: "http://localhost:7777/auth/facebook/callback", //todo move url in config
-    ClientID: "", //todo move clientId in config
-    ClientSecret: "", //todo move clientsecret in config
-    Endpoint:     facebook.Endpoint,
-}
-
 func main() {
+    loadConfig()
+
     router := mux.NewRouter()
 
-    router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        w.Write([]byte( "<div> <a href='/auth/facebook/login'>Login with Facebook</a> </div> ")) //todo do we need this html?
-    })
+    router.HandleFunc("/", handlers.Main)
+    router.HandleFunc("/auth/facebook/login", handlers.FacebookOauth2Login)
+    router.HandleFunc("/auth/facebook/callback", handlers.FacebookOauth2Callback)
 
-    router.HandleFunc("/auth/facebook/login", func(w http.ResponseWriter, r *http.Request) {
-        oauthState := "oauthState" //todo save oauthState. read docs
-        fbLoginUrl := facebookOauthConfig.AuthCodeURL(oauthState)
-        fmt.Printf("%s\n", fbLoginUrl)
-        http.Redirect(w, r, fbLoginUrl, http.StatusTemporaryRedirect)
-    })
+    port := viper.GetString("port")
+    http.ListenAndServe(":" + port, router)
+}
 
-    router.HandleFunc("/auth/facebook/callback", func(w http.ResponseWriter, r *http.Request) {
-        //todo check for oauth state
-        //todo get facebook info about user
-        //todo what should we do with the user info. How should it be integrated with other third party authentication providers
-
-        //todo Create user. What's next?
-        w.Write([]byte("facebook callback"))
-    })
-
-
-    http.ListenAndServe(":7777", router)//todo move port in a config
+func loadConfig() {
+    viper.SetConfigName("config")
+    viper.SetConfigType("yaml")
+    viper.AddConfigPath(".")
+    err := viper.ReadInConfig()
+    if err != nil {
+        log.Fatal(err)
+    }
 }
