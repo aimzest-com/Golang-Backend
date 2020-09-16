@@ -10,8 +10,8 @@ import (
 
 var facebookOauthConfig = &oauth2.Config{
     RedirectURL: "http://localhost:7777/auth/facebook/callback", //todo move url in config
-    ClientID: "1010600019384206", //todo move clientId in config
-    ClientSecret: "ab3cffd0e090e8b3956357fa0f07320b", //todo move clientsecret in config
+    ClientID: "", //todo move clientId in config
+    ClientSecret: "", //todo move clientsecret in config
     Endpoint:     facebook.Endpoint,
 }
 
