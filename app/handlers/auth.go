@@ -2,8 +2,6 @@ package handlers
 
 import (
     "net/http"
-    "fmt"
-
     "golang.org/x/oauth2"
     "github.com/spf13/viper"
     "golang.org/x/oauth2/facebook"
@@ -11,10 +9,10 @@ import (
     "crypto/rand"
     "encoding/base64"
 
-    "github.com/gorilla/sessions"
+    "backend/app"
 )
 
-func FacebookOauth2Login(w http.ResponseWriter, r *http.Request) {
+func FacebookOauth2Login(appContext *app.Context, w http.ResponseWriter, r *http.Request) {
     port := viper.GetString("port")
     host := viper.GetString("host")
 
@@ -31,7 +29,7 @@ func FacebookOauth2Login(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, fbLoginUrl, http.StatusTemporaryRedirect)
 }
 
-func FacebookOauth2Callback(w http.ResponseWriter, r *http.Request) {
+func FacebookOauth2Callback(appContext *app.Context, w http.ResponseWriter, r *http.Request) {
         //todo check for oauth state
         //todo get facebook info about user
         //todo what should we do with the user info. How should it be integrated with other third party authentication providers
