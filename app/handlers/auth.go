@@ -12,7 +12,7 @@ import (
     "backend/app"
 )
 
-func FacebookOauth2Login(appContext *app.Context, w http.ResponseWriter, r *http.Request) {
+func FacebookOauth2Login(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
     port := viper.GetString("port")
     host := viper.GetString("host")
 
@@ -29,7 +29,7 @@ func FacebookOauth2Login(appContext *app.Context, w http.ResponseWriter, r *http
     http.Redirect(w, r, fbLoginUrl, http.StatusTemporaryRedirect)
 }
 
-func FacebookOauth2Callback(appContext *app.Context, w http.ResponseWriter, r *http.Request) {
+func FacebookOauth2Callback(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
         //todo check for oauth state
         //todo get facebook info about user
         //todo what should we do with the user info. How should it be integrated with other third party authentication providers

@@ -5,6 +5,6 @@ import (
     "backend/app"
 )
 
-func Main(appContext *app.Context, w http.ResponseWriter, r *http.Request) {
+func Main(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
     w.Write([]byte( "<div> <a href='/auth/facebook/login'>Login with Facebook</a> </div> ")) 
 }
