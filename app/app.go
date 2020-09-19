@@ -14,7 +14,9 @@ type Route struct {
 
 type Routes []Route
 
-type AppContext struct{}
+type AppContext struct{
+    Config Config
+}
 
 type ContextHandlerFunc func(*AppContext, http.ResponseWriter, *http.Request)
 
@@ -45,5 +47,7 @@ func (app *App) NewRouter(routes Routes) *mux.Router {
 }
 
 func NewApp() *App {
-    return &App{}
+    return &App{
+        Context: &AppContext{},
+    }
 }

@@ -3,7 +3,6 @@ package handlers
 import (
     "net/http"
     "golang.org/x/oauth2"
-    "github.com/spf13/viper"
     "golang.org/x/oauth2/facebook"
 
     "crypto/rand"
@@ -13,13 +12,13 @@ import (
 )
 
 func FacebookOauth2Login(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
-    port := viper.GetString("port")
-    host := viper.GetString("host")
+    config := appContext.Config
+    redirectUrl := config.GetString("host") + ":" + config.GetString("port") + "/auth/facebook/callback"
 
     facebookOauthConfig := &oauth2.Config{
-        RedirectURL: host + ":" + port + "/auth/facebook/callback",
-        ClientID: viper.GetString("facebookClientID"), 
-        ClientSecret: viper.GetString("facebookClientSecret"), 
+        RedirectURL: redirectUrl,
+        ClientID: config.GetString("facebookClientID"),
+        ClientSecret: config.GetString("facebookClientSecret"), 
         Endpoint:     facebook.Endpoint,
     }
 
