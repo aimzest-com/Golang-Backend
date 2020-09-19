@@ -2,7 +2,17 @@ package app
 
 import (
     "net/http"
+    "github.com/gorilla/mux"
 )
+
+type Route struct {
+    Name string
+    Method []string
+    Path string
+    ContextHandlerFunc ContextHandlerFunc
+}
+
+type Routes []Route
 
 type AppContext struct{}
 
@@ -20,8 +30,18 @@ type App struct {
     Context *AppContext
 }
 
-func (app *App) Bind(ctxHandlerFunc ContextHandlerFunc) http.Handler {
-    return &ContextHandler{app.Context, ctxHandlerFunc}
+func (app *App) NewRouter(routes Routes) *mux.Router {
+    router := mux.NewRouter()
+
+    for _, route := range routes {
+        router.
+            Methods(route.Method...).
+            Path(route.Path).
+            Name(route.Name).
+            Handler(&ContextHandler{app.Context, route.ContextHandlerFunc})
+    }
+
+    return router
 }
 
 func NewApp() *App {
