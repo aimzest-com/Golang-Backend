@@ -3,6 +3,7 @@ package app
 import (
     "net/http"
     "github.com/gorilla/mux"
+    "github.com/gorilla/sessions"
 )
 
 type Route struct {
@@ -15,7 +16,8 @@ type Route struct {
 type Routes []Route
 
 type AppContext struct{
-    Config Config
+    Config *Config
+    SessionStore *sessions.CookieStore
 }
 
 type ContextHandlerFunc func(*AppContext, http.ResponseWriter, *http.Request)
@@ -47,7 +49,12 @@ func (app *App) NewRouter(routes Routes) *mux.Router {
 }
 
 func NewApp() *App {
+    config := NewConfig()
+    sessionStore := sessions.NewCookieStore([]byte(config.GetString("session_key")))
     return &App{
-        Context: &AppContext{},
+        Context: &AppContext{
+            Config: config,
+            SessionStore: sessionStore,
+        },
     }
 }

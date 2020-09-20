@@ -9,3 +9,7 @@ type Config struct {}
 func (*Config) GetString(name string) string {
     return viper.GetString(name)
 }
+
+func NewConfig() *Config {
+    return &Config{}
+}

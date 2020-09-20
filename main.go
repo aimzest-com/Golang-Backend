@@ -30,7 +30,6 @@ var routes = app.Routes{
     },
 }
 
-//todo move config in AppContext
 //todo move sessions in AppContext
 
 func main() {

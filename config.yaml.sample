@@ -3,3 +3,4 @@ port: 7777
 host: http://localhost
 facebookClientID: xxxxxxxxxxxxxxxx
 facebookClientSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+session_key: xxx

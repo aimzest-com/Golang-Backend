@@ -5,10 +5,8 @@ import (
     "golang.org/x/oauth2"
     "golang.org/x/oauth2/facebook"
 
-    "crypto/rand"
-    "encoding/base64"
-
     "backend/app"
+    "backend/app/helpers"
 )
 
 func FacebookOauth2Login(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
@@ -22,24 +20,45 @@ func FacebookOauth2Login(appContext *app.AppContext, w http.ResponseWriter, r *h
         Endpoint:     facebook.Endpoint,
     }
 
-    oauthState := generateStateOauthCookie() //todo 1. store it in a session
-    //todo 2. look for a context to be shared through requests
+    oauthState := helpers.GenerateCookie() 
+    session, err := appContext.SessionStore.Get(r, oauthState)
+    if err != nil {
+        http.Error(w, err.Error(), 500)
+        return
+    }
+
+    session.Values["oauth_state"] = oauthState
+    err = session.Save(r, w)
+    if err != nil {
+        http.Error(w, err.Error(), 500)
+    }
+
     fbLoginUrl := facebookOauthConfig.AuthCodeURL(oauthState)
     http.Redirect(w, r, fbLoginUrl, http.StatusTemporaryRedirect)
 }
 
 func FacebookOauth2Callback(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
-        //todo check for oauth state
-        //todo get facebook info about user
-        //todo what should we do with the user info. How should it be integrated with other third party authentication providers
+    facebookStates, ok :=  r.URL.Query()["state"]
+    if !ok {
+        http.Error(w, "state query param is not setted", 400)
+        return
+    }
+    facebookState := facebookStates[0]
 
-        //todo Create user. What's next?
-        w.Write([]byte("facebook callback"))
-}
+    session, err := appContext.SessionStore.Get(r, facebookState)
+    if err != nil {
+        http.Error(w, err.Error(), 400)
+        return
+    }
 
-func generateStateOauthCookie() string {
-    b := make([]byte, 128)
-    rand.Read(b)
-    state := base64.URLEncoding.EncodeToString(b)
-    return state
+    if session.Values["oauth_state"] != facebookState {
+        http.Error(w, "oauth state on server is diffent of that delivered by facebook", 400)
+    }
+
+    //todo check for oauth state
+    //todo get facebook info about user
+    //todo what should we do with the user info. How should it be integrated with other third party authentication providers
+
+    //todo Create user. What's next?
+    w.Write([]byte("facebook callback"))
 }
