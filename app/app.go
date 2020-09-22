@@ -5,6 +5,8 @@ import (
     "github.com/gorilla/mux"
     "github.com/gorilla/sessions"
     "gorm.io/gorm"
+
+    "backend/app/model"
 )
 
 type Route struct {
@@ -52,6 +54,9 @@ func (app *App) NewRouter(routes Routes) *mux.Router {
 
 func NewApp(config *Config, db *gorm.DB) *App {
     sessionStore := sessions.NewCookieStore([]byte(config.GetString("session_key")))
+
+    db.AutoMigrate(&model.User{})
+
     return &App{
         Context: &AppContext{
             Config: config,

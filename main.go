@@ -20,14 +20,20 @@ var routes = app.Routes{
     app.Route {
         "AuthFacebookLogin",
         []string{"GET"},
-        "/auth/facebook/login",
+        "/oauth2/facebook/login",
         handlers.FacebookOauth2Login,
     },
     app.Route {
         "AuthFacebookCallback",
         []string{"GET"},
-        "/auth/facebook/callback",
+        "/oauth2/facebook/callback",
         handlers.FacebookOauth2Callback,
+    },
+    app.Route {
+        "AuthRegister",
+        []string{"POST"},
+        "/auth/register",
+        handlers.AuthRegister,
     },
 }
 
