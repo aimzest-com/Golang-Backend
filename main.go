@@ -3,6 +3,8 @@ package main
 import (
     "log"
     "net/http"
+    "gorm.io/gorm"
+    "gorm.io/driver/sqlite"
 
     "backend/app/handlers"
     "backend/app"
@@ -35,7 +37,12 @@ func main() {
         log.Fatal(err)
     }
 
-    myApp := app.NewApp(config)
+    db, err := gorm.Open(sqlite.Open(config.GetString("DB_NAME")), &gorm.Config{})
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    myApp := app.NewApp(config, db)
     router := myApp.NewRouter(routes)
 
     port := config.GetString("port")
