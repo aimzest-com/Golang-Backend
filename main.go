@@ -3,7 +3,6 @@ package main
 import (
     "log"
     "net/http"
-    "github.com/spf13/viper"
 
     "backend/app/handlers"
     "backend/app"
@@ -30,30 +29,15 @@ var routes = app.Routes{
     },
 }
 
-//todo move sessions in AppContext
-
 func main() {
-    loadConfig()
-
-    myApp := app.NewApp()
-    router := myApp.NewRouter(routes)
-
-    /*
-    router.Methods("GET").Path("/").Name("default").Handler(myApp.Bind(handlers.Main))
-    router.Methods("GET").Path("/auth/facebook/login").Name("AuthFacebookLogin").Handler(myApp.Bind(handlers.FacebookOauth2Login))
-    router.Methods("GET").Path("/auth/facebook/callback").Name("AuthFacebookCallback").Handler(myApp.Bind(handlers.FacebookOauth2Callback))
-    */
-
-    port := viper.GetString("port")
-    http.ListenAndServe(":" + port, router)
-}
-
-func loadConfig() {
-    viper.SetConfigName("config")
-    viper.SetConfigType("yaml")
-    viper.AddConfigPath(".")
-    err := viper.ReadInConfig()
+    config, err := app.NewConfig()
     if err != nil {
         log.Fatal(err)
     }
+
+    myApp := app.NewApp(config)
+    router := myApp.NewRouter(routes)
+
+    port := config.GetString("port")
+    http.ListenAndServe(":" + port, router)
 }

@@ -48,8 +48,7 @@ func (app *App) NewRouter(routes Routes) *mux.Router {
     return router
 }
 
-func NewApp() *App {
-    config := NewConfig()
+func NewApp(config *Config) *App {
     sessionStore := sessions.NewCookieStore([]byte(config.GetString("session_key")))
     return &App{
         Context: &AppContext{
