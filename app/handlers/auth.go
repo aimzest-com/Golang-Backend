@@ -18,10 +18,23 @@ func AuthRegister(appContext *app.AppContext, w http.ResponseWriter, r *http.Req
         return
     }
 
-    appContext.Db.Create(&user)
+    var dbUser model.User
+    result := appContext.Db.Where("username = ?", user.Username).Find(&dbUser)
+    if result.Error != nil {
+        http.Error(w, result.Error.Error(), http.StatusBadRequest)
+        return
+    }
 
-    //todo add uniqueness for username
-    //todo check errors
+    if result.RowsAffected > 0 {
+        http.Error(w, "The username is already in use", http.StatusBadRequest)
+        return
+    }
+
+    result = appContext.Db.Create(&user)
+    if result.Error != nil {
+        http.Error(w, result.Error.Error(), http.StatusBadRequest)
+        return
+    }
 
     w.Write([]byte(fmt.Sprintf("%d", user.ID)))
 }
