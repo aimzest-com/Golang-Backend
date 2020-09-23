@@ -2,6 +2,8 @@ package app
 
 import (
     "net/http"
+    PlaygroundValidate "github.com/go-playground/validator/v10"
+
     "github.com/gorilla/mux"
     "github.com/gorilla/sessions"
     "gorm.io/gorm"
@@ -22,6 +24,7 @@ type AppContext struct{
     Config *Config
     SessionStore *sessions.CookieStore
     Db *gorm.DB
+    Validate *PlaygroundValidate.Validate
 }
 
 type ContextHandlerFunc func(*AppContext, http.ResponseWriter, *http.Request)
@@ -62,6 +65,7 @@ func NewApp(config *Config, db *gorm.DB) *App {
             Config: config,
             SessionStore: sessionStore,
             Db: db,
+            Validate: PlaygroundValidate.New(),
         },
     }
 }

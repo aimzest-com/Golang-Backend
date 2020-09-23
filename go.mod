@@ -3,6 +3,7 @@ module backend
 go 1.14
 
 require (
+	github.com/go-playground/validator/v10 v10.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/spf13/viper v1.7.1
