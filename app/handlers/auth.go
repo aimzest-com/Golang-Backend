@@ -4,6 +4,7 @@ import (
     "net/http"
     "encoding/json"
     "strings"
+    "golang.org/x/crypto/bcrypt"
 
     "backend/app"
     "backend/app/model"
@@ -39,6 +40,14 @@ func AuthRegister(appContext *app.AppContext, w http.ResponseWriter, r *http.Req
         return
     }
 
+    password := []byte(strings.TrimSpace(user.Password))
+    password, err = bcrypt.GenerateFromPassword(password, appContext.Config.GetInt("bcrypt_cost"))
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    user.Password = string(password)
     result = appContext.Db.Create(&user)
     if result.Error != nil {
         http.Error(w, result.Error.Error(), http.StatusBadRequest)

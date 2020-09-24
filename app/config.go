@@ -10,6 +10,10 @@ func (*Config) GetString(name string) string {
     return viper.GetString(name)
 }
 
+func (*Config) GetInt(name string) int {
+    return viper.GetInt(name)
+}
+
 func NewConfig() (*Config, error) {
     viper.SetConfigName("config")
     viper.SetConfigType("yaml")
