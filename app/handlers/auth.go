@@ -59,4 +59,34 @@ func AuthRegister(appContext *app.AppContext, w http.ResponseWriter, r *http.Req
 }
 
 func AuthLogin(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
+    var loginForm form.Login
+    err := json.NewDecoder(r.Body).Decode(&loginForm)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    err = appContext.Validate.Struct(loginForm)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    username := strings.TrimSpace(loginForm.Username)
+    var user model.User
+    result := appContext.Db.Where("username = ?", username).Find(&user)
+    if result.RowsAffected == 0 {
+        http.Error(w, "user not found", http.StatusNotFound)
+        return
+    }
+
+    password := strings.TrimSpace(loginForm.Password)
+    err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+    if err != nil {
+        http.Error(w, "wrong password", http.StatusNotFound)
+        return
+    }
+
+    
+    w.Write([]byte(fmt.Sprintf("Hi. %s. You're already logged in. ", user.Username)))
 }
