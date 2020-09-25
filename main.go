@@ -37,6 +37,12 @@ var routes = app.Routes{
         "/auth/register",
         handlers.AuthRegister,
     },
+    app.Route {
+        "AuthLogin",
+        []string{"POST"},
+        "/auth/login",
+        handlers.AuthLogin,
+    },
 }
 
 func main() {

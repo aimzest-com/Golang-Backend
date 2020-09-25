@@ -8,28 +8,29 @@ import (
 
     "backend/app"
     "backend/app/model"
+    "backend/app/form"
 
     "fmt"
 )
 
 func AuthRegister(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
-    var user model.User
-    err := json.NewDecoder(r.Body).Decode(&user)
+    var registerForm form.Register
+    err := json.NewDecoder(r.Body).Decode(&registerForm)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
 
-    err = appContext.Validate.Struct(user)
+    err = appContext.Validate.Struct(registerForm)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
 
-    user.Username = strings.TrimSpace(user.Username)
+    username := strings.TrimSpace(registerForm.Username)
 
     var dbUser model.User
-    result := appContext.Db.Where("username = ?", user.Username).Find(&dbUser)
+    result := appContext.Db.Where("username = ?", username).Find(&dbUser)
     if result.Error != nil {
         http.Error(w, result.Error.Error(), http.StatusBadRequest)
         return
@@ -40,14 +41,14 @@ func AuthRegister(appContext *app.AppContext, w http.ResponseWriter, r *http.Req
         return
     }
 
-    password := []byte(strings.TrimSpace(user.Password))
+    password := []byte(strings.TrimSpace(registerForm.Password))
     password, err = bcrypt.GenerateFromPassword(password, appContext.Config.GetInt("bcrypt_cost"))
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
-    user.Password = string(password)
+    user := model.User{Username: username, Password: string(password)}
     result = appContext.Db.Create(&user)
     if result.Error != nil {
         http.Error(w, result.Error.Error(), http.StatusBadRequest)
@@ -55,4 +56,7 @@ func AuthRegister(appContext *app.AppContext, w http.ResponseWriter, r *http.Req
     }
 
     w.Write([]byte(fmt.Sprintf("%d", user.ID)))
+}
+
+func AuthLogin(appContext *app.AppContext, w http.ResponseWriter, r *http.Request) {
 }
