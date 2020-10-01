@@ -9,6 +9,7 @@ import (
     "backend/app"
     "backend/app/model"
     "backend/app/form"
+    "backend/app/helpers"
 
     "fmt"
 )
@@ -87,6 +88,11 @@ func AuthLogin(appContext *app.AppContext, w http.ResponseWriter, r *http.Reques
         return
     }
 
+    token, err := helpers.GenerateJWTToken(user.ID, appContext.Config.GetString("jwt_secret"))
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
     
-    w.Write([]byte(fmt.Sprintf("Hi. %s. You're already logged in. ", user.Username)))
+    w.Write([]byte(token))
 }

@@ -6,3 +6,4 @@ facebookClientSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 session_key: xxx
 db_name: xxxxxxx
 bcrypt_cost: 5
+jwt_secret: xxxxxxxxxxx
