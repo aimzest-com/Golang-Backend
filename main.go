@@ -3,6 +3,8 @@ package main
 import (
     "log"
     "net/http"
+     "github.com/go-redis/redis/v7"
+//     "github.com/twinj/uuid"
 
     "gorm.io/gorm"
     "gorm.io/driver/sqlite"
@@ -51,7 +53,15 @@ func main() {
         log.Fatal(err)
     }
 
-    db, err := gorm.Open(sqlite.Open(config.GetString("DB_NAME")), &gorm.Config{})
+    db, err := gorm.Open(sqlite.Open(config.GetString("db_name")), &gorm.Config{})
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    redisClient := redis.NewClient(&redis.Options{
+        Addr: config.GetString("redis_dsn"),
+    })
+    _, err = redisClient.Ping().Result()
     if err != nil {
         log.Fatal(err)
     }
