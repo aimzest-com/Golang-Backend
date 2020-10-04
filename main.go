@@ -66,7 +66,7 @@ func main() {
         log.Fatal(err)
     }
 
-    myApp := app.NewApp(config, db)
+    myApp := app.NewApp(config, db, redisClient)
     router := myApp.NewRouter(routes)
 
     port := config.GetString("port")

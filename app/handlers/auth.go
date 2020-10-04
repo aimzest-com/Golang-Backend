@@ -9,7 +9,6 @@ import (
     "backend/app"
     "backend/app/model"
     "backend/app/form"
-    "backend/app/helpers"
 
     "fmt"
 )
@@ -88,11 +87,30 @@ func AuthLogin(appContext *app.AppContext, w http.ResponseWriter, r *http.Reques
         return
     }
 
-    token, err := helpers.GenerateJWTToken(user.ID, appContext.Config.GetString("jwt_secret"))
+    jwtAccessSecret := appContext.Config.GetString("jwt_access_secret")
+    jwtRefreshSecret := appContext.Config.GetString("jwt_refresh_secret")
+    jwtToken, err := appContext.JWTStorage.NewToken(user.ID, jwtAccessSecret, jwtRefreshSecret)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+        http.Error(w, err.Error(), http.StatusUnprocessableEntity)
         return
     }
-    
-    w.Write([]byte(token))
+
+    err = appContext.JWTStorage.CreateAuth(uint64(user.ID), jwtToken)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    tokens := map[string]string {
+        "access_token": jwtToken.AccessToken,
+        "refresh_token": jwtToken.RefreshToken,
+    }
+
+    tokensJson, err := json.Marshal(tokens)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Write([]byte(tokensJson))
 }

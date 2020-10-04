@@ -9,6 +9,7 @@ import (
     "gorm.io/gorm"
 
     "backend/app/model"
+    "github.com/go-redis/redis/v7"
 )
 
 type Route struct {
@@ -25,6 +26,7 @@ type AppContext struct{
     SessionStore *sessions.CookieStore
     Db *gorm.DB
     Validate *PlaygroundValidate.Validate
+    JWTStorage *JWTStorage
 }
 
 type ContextHandlerFunc func(*AppContext, http.ResponseWriter, *http.Request)
@@ -55,7 +57,7 @@ func (app *App) NewRouter(routes Routes) *mux.Router {
     return router
 }
 
-func NewApp(config *Config, db *gorm.DB) *App {
+func NewApp(config *Config, db *gorm.DB, redisClient *redis.Client) *App {
     sessionStore := sessions.NewCookieStore([]byte(config.GetString("session_key")))
 
     db.AutoMigrate(&model.User{})
@@ -66,6 +68,7 @@ func NewApp(config *Config, db *gorm.DB) *App {
             SessionStore: sessionStore,
             Db: db,
             Validate: PlaygroundValidate.New(),
+            JWTStorage: NewJWTStorage(redisClient),
         },
     }
 }
