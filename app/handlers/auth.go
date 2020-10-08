@@ -87,9 +87,7 @@ func AuthLogin(appContext *app.AppContext, w http.ResponseWriter, r *http.Reques
         return
     }
 
-    jwtAccessSecret := appContext.Config.GetString("jwt_access_secret")
-    jwtRefreshSecret := appContext.Config.GetString("jwt_refresh_secret")
-    jwtToken, err := appContext.JWTStorage.NewToken(user.ID, jwtAccessSecret, jwtRefreshSecret)
+    jwtToken, err := appContext.JWTStorage.NewToken(user.ID)
     if err != nil {
         http.Error(w, err.Error(), http.StatusUnprocessableEntity)
         return

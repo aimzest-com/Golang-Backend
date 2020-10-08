@@ -20,30 +20,44 @@ var routes = app.Routes{
         []string{"GET"},
         "/",
         handlers.Main,
+        &app.RouteOptions{},
     },
     app.Route {
         "AuthFacebookLogin",
         []string{"GET"},
         "/oauth2/facebook/login",
         handlers.FacebookOauth2Login,
+        &app.RouteOptions{},
     },
     app.Route {
         "AuthFacebookCallback",
         []string{"GET"},
         "/oauth2/facebook/callback",
         handlers.FacebookOauth2Callback,
+        &app.RouteOptions{},
     },
     app.Route {
         "AuthRegister",
         []string{"POST"},
         "/auth/register",
         handlers.AuthRegister,
+        &app.RouteOptions{},
     },
     app.Route {
         "AuthLogin",
         []string{"POST"},
         "/auth/login",
         handlers.AuthLogin,
+        &app.RouteOptions{},
+    },
+    app.Route {
+        "Test",
+        []string{"GET"},
+        "/test",
+        handlers.Test,
+        &app.RouteOptions{
+            Authenticate: true,
+        },
     },
 }
 

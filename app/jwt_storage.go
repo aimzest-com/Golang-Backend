@@ -13,11 +13,15 @@ import (
 
 type JWTStorage struct {
     Client *redis.Client
+    AccessSecret string
+    RefreshSecret string
 }
 
-func NewJWTStorage(redisClient *redis.Client) *JWTStorage {
+func NewJWTStorage(redisClient *redis.Client, accessSecret string, refreshSecret string) *JWTStorage {
     return &JWTStorage{
         Client: redisClient,
+        AccessSecret: accessSecret,
+        RefreshSecret: refreshSecret,
     }
 }
 
@@ -30,7 +34,7 @@ type TokenDetails struct {
     RtExpires    int64
 }
 
-func (storage *JWTStorage) NewToken(userId uint, accessSecret string, refreshSecret string) (*TokenDetails, error) {
+func (storage *JWTStorage) NewToken(userId uint) (*TokenDetails, error) {
     td := &TokenDetails{}
     td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
     td.AccessUuid = uuid.NewV4().String()
@@ -47,7 +51,7 @@ func (storage *JWTStorage) NewToken(userId uint, accessSecret string, refreshSec
     atClaims["exp"] = td.AtExpires
 
     at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-    td.AccessToken, err = at.SignedString([]byte(accessSecret))
+    td.AccessToken, err = at.SignedString([]byte(storage.AccessSecret))
     if err != nil {
         return nil, err
     }
@@ -57,7 +61,7 @@ func (storage *JWTStorage) NewToken(userId uint, accessSecret string, refreshSec
     rtClaims["user_id"] = userId
     rtClaims["exp"] = td.RtExpires
     rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
-    td.RefreshToken, err = rt.SignedString([]byte(refreshSecret))
+    td.RefreshToken, err = rt.SignedString([]byte(storage.RefreshSecret))
     if err != nil {
         return nil, err
     }
@@ -122,8 +126,8 @@ func extractToken(r *http.Request) string {
     return ""
 }
 
-func extractTokenMetadata(r *http.Request, accessSecret string) (*AccessDetails, error) {
-    token, err := verifyToken(r, accessSecret)
+func (storage *JWTStorage) ExtractTokenMetadata(r *http.Request) (*AccessDetails, error) {
+    token, err := verifyToken(r, storage.AccessSecret)
     if err != nil {
         return nil, err
     }
